@@ -95,14 +95,8 @@ private:
 
   Action Step();
 
-  // Whether a block could be placed at coordinates. See Coordinates struct
-  // comment
   [[nodiscard]] bool QueryPlacement(int x, int y, int z) const;
 
-  // Resize the 3D grid based on user input to an empty grid
-  // TODO: implement user input. See raygui.h
-  // 2/18/24: could just take dimensions by command line arguments
-  // and not have our world be resizable throughout its lifetime.
   void ResizeGrid(uint32_t _w, uint32_t _h, uint32_t _d);
 
   Coordinates agentPos = {0, 0, 0};

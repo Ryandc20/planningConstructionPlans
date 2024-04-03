@@ -226,25 +226,6 @@ void GridWorld::ResizeGrid(uint32_t _w, uint32_t _h, uint32_t _d) {
   agentPos = {0, 0, 0};
 }
 
-/* Trying out binary format. Sorry Thanh
-void GridWorld::SaveToFile() const {
-    std::ofstream myfile;
-    myfile.open(filePath, std::fstream::out);
-
-    for (int i=0; i < w; i++) {
-        for (int j=0; j < d; j++) {
-            for (int k=0; k < h; k++) {
-                myfile << grid[i][j][k] << " ";
-            }
-            myfile << std::endl;
-        }
-        myfile << std::endl;
-    }
-    myfile << std::endl;
-    myfile.close();
-}
-*/
-
 void GridWorld::SaveToFile() const {
   std::cout << "Saving to file" << std::endl;
   size_t size = w * d * h + 3;
@@ -467,86 +448,6 @@ void GridWorld::createPDDLProblem(std::string problemName) const {
   file << ")\n";
 
   file.close();
-}
-
-// Performs the next action in the PDDL file plan
-Action GridWorld::stepPDDLPlan(std::ifstream &file) {
-  if (!IsKeyPressed(KEY_ENTER))
-    return Action::NONE;
-
-  std::string line;
-  if (std::getline(file, line)) {
-
-    if (line[0] == ';') {
-      std::cout << line.substr(1) << std::endl;
-      return Action::NONE;
-    }
-    Action action;
-    // Remove the parentheses
-    line = line.substr(1, line.size() - 1);
-
-    std::istringstream lineStream(line);
-
-    std::string cmd;
-
-    lineStream >> cmd;
-
-    if (cmd == "move-agent") {
-      std::string from, to;
-      lineStream >> from;
-      lineStream >> to;
-
-      int x1, x2, y1, y2, z1, z2;
-
-      // Remove the p which is in front of the block locations
-      from = from.substr(1);
-      to = to.substr(1);
-
-      // Warning some wacky code follows
-      for (char &ch : from)
-        if (ch == '_')
-          ch = ' ';
-      for (char &ch : to)
-        if (ch == '_')
-          ch = ' ';
-      std::istringstream fromStream(from);
-      std::istringstream toStream(to);
-      fromStream >> x1 >> y1 >> z1;
-      toStream >> x2 >> y2 >> z2;
-
-      // Figure out the direction in one position does the value differ
-      int xDiff = x2 - x1, yDiff = y2 - y1, zDiff = z2 - z1;
-
-      // The first two need to be reversed from forward to bacward because we
-      // start at a position where we can only move backward
-      if (xDiff > 0)
-        action = Action::BACKWARD;
-      if (xDiff < 0)
-        action = Action::FORWARD;
-      if (yDiff > 0)
-        action = Action::RIGHT;
-      if (yDiff < 0)
-        action = Action::LEFT;
-      if (zDiff > 0)
-        action = Action::UP;
-      if (zDiff < 0)
-        action = Action::DOWN;
-    }
-
-    if (cmd == "place-column") {
-      currBlockType = 1;
-      return Action::PLACE;
-    }
-
-    if (cmd == "place-beam") {
-      currBlockType = 2;
-      return Action::PLACE;
-    }
-
-    return action;
-  }
-
-  return Action::NONE;
 }
 
 std::string GridWorld::connected(std::string cmd, int i1, int j1, int k1,
