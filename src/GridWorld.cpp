@@ -271,16 +271,6 @@ Action GridWorld::Step() {
     return Action::NONE;
   }
 
-  // Save to pddl
-  if (IsKeyPressed(KEY_P)) {
-    if (enterDelayed)
-      return Action::NONE;
-    enterDelayed = true;
-
-    SaveToPDDL("test");
-    return Action::NONE;
-  }
-
   // A little hack to avoid setting enterDelayed = true in every if statement
   bool prevDelayedStatus = enterDelayed;
   enterDelayed = false;
@@ -341,112 +331,6 @@ void GridWorld::LoadFromFile() {
       }
     }
   }
-  file.close();
-}
-
-void GridWorld::SaveToPDDL(std::string problemName) const {
-  std::cout << "Creating pddl files" << std::endl;
-  createPDDLDomain(problemName);
-  createPDDLProblem(problemName);
-}
-
-void GridWorld::createPDDLDomain(std::string problemName) const {
-  // Open up the template
-  //
-}
-
-void GridWorld::createPDDLProblem(std::string problemName) const {
-  std::ofstream file(filePath);
-
-  // Add the start of the file template
-  file << "(define (problem " << problemName << ")\n";
-  file << "\t(:domain cubeworld)\n";
-
-  // Define the objects
-  file << "\t(:objects\n";
-
-  file << "\t\t";
-  for (int i = 0; i < w; i++) {
-    for (int j = 0; j < h; j++) {
-      for (int k = 0; k < d; k++)
-        file << "p" << i << "_" << j << "_" << k << " ";
-    }
-  }
-  file << "- position\n";
-  file << "\t)\n\n";
-
-  // Define the initial state
-  file << "\t(:init\n";
-
-  // Create the starting location for the agent
-  file << "\t\t(at-agent p0_0_0)\n";
-  for (int i = 0; i < w; i++) {
-    for (int j = 0; j < d; j++) {
-      for (int k = 0; k < h; k++) {
-        // Adjacent to left block
-        if (i > 0)
-          file << connected("adjacent", i, j, k, i - 1, j, k);
-
-        // Adjacent to right block
-        if (i < w - 1)
-          file << connected("adjacent", i, j, k, i + 1, j, k);
-
-        // Adjacent to backward block
-        if (j > 0)
-          file << connected("adjacent", i, j, k, i, j - 1, k);
-
-        // Adjacent to forward block
-        if (j < h - 1)
-          file << connected("adjacent", i, j, k, i, j + 1, k);
-
-        // Adjacent to downward block
-        if (k > 0)
-          file << connected("adjacent", i, j, k, i, j, k - 1);
-
-        // Adjacent to upward block
-        if (k < d - 1)
-          file << connected("adjacent", i, j, k, i, j, k + 1);
-      }
-    }
-  }
-
-  // Add what blocks are on the floor
-  for (int i = 0; i < w; i++) {
-    for (int j = 0; j < d; j++) {
-      file << "\t\t(on-floor ";
-      file << "p" << i << '_' << j << "_0)\n";
-    }
-  }
-
-  for (int i = 0; i < w; i++) {
-    for (int j = 0; j < d; j++) {
-      for (int k = 0; k < h; k++) {
-        if (k > 0) {
-        }
-      }
-    }
-  }
-  // Add the scafold needed
-  file << "\t)\n\n";
-
-  // Define the goal state
-  file << "\t(:goal (and\n";
-
-  for (int i = 0; i < w; i++) {
-    for (int j = 0; j < h; j++) {
-      for (int k = 0; k < d; k++) {
-        if (grid[i][j][k]) {
-          file << "\t\t(full p" << i << "_" << k << "_" << j << ")\n";
-        } else {
-          file << "\t\t(not (full p" << i << "_" << k << "_" << j << "))\n";
-        }
-      }
-    }
-  }
-
-  file << "\t))\n";
-  file << ")\n";
-
   file.close();
 }
 

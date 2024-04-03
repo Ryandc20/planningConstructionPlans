@@ -38,6 +38,10 @@ int main(int argc, char *argv[]) {
   int size = stoi(argv[1]);
   string fileName = argv[2];
 
+  fs::path targetPaths = fs::current_path().parent_path() / "targets";
+  fs::path pddlPaths = fs::current_path().parent_path() / "pddl";
+  fs::path planPaths = fs::current_path().parent_path() / "plans";
+
   if (cmd == "create") {
   } else if (cmd == "render") {
     if (argc != 5)
@@ -45,9 +49,7 @@ int main(int argc, char *argv[]) {
   } else if (cmd == "search") {
     if (argc != 4)
       PrintError("search");
-
   } else if (cmd == "pddl") {
-
   } else {
     PrintError();
   }

@@ -32,6 +32,8 @@ private:
   // Stores the representation of the goal state
   std::vector<std::vector<std::vector<int>>> goal;
 
+  std::vector<std::vector<std::vector<int>>> state;
+
   // Stores the found plan
   std::vector<GWEnv::Action> plan;
 };

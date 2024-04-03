@@ -1,108 +1,117 @@
 #include "PDDL.h"
 #include <fstream>
+#include <iostream>
+#include <sstream>
 
 using namespace GWEnv;
 
 PDDL::PDDL(fs::path filePath, bool save) {
+
   if (save)
-    oFileStream = new std::ofstream(filePath.c_str());
+    oFile.open(filePath.c_str());
   else
-    iFileStream = new std::ifstream(filePath.c_str());
+    iFile.open(filePath.c_str());
 }
 
 GWEnv::Action PDDL::stepPlan() {
-  // std::string line;
-  // getline(*iFileStream, line);
-  // GWEnv::Action action;
-
-  // Keep getting a line until it is directly associated with an action
-  if (!IsKeyPressed(KEY_ENTER))
-    return Action::NONE;
-
   std::string line;
-  if (std::getline(*iFileStream, line)) {
-
-    if (line[0] == ';') {
-      std::cout << line.substr(1) << std::endl;
-      return Action::NONE;
-    }
-    Action action;
-    // Remove the parentheses
-    line = line.substr(1, line.size() - 1);
-
-    std::istringstream lineStream(line);
-
-    std::string cmd;
-
-    lineStream >> cmd;
-
-    if (cmd == "move-agent") {
-      std::string from, to;
-      lineStream >> from;
-      lineStream >> to;
-
-      int x1, x2, y1, y2, z1, z2;
-
-      // Remove the p which is in front of the block locations
-      from = from.substr(1);
-      to = to.substr(1);
-
-      // Warning some wacky code follows
-      for (char &ch : from)
-        if (ch == '_')
-          ch = ' ';
-      for (char &ch : to)
-        if (ch == '_')
-          ch = ' ';
-      std::istringstream fromStream(from);
-      std::istringstream toStream(to);
-      fromStream >> x1 >> y1 >> z1;
-      toStream >> x2 >> y2 >> z2;
-
-      // Figure out the direction in one position does the value differ
-      int xDiff = x2 - x1, yDiff = y2 - y1, zDiff = z2 - z1;
-
-      // The first two need to be reversed from forward to bacward because we
-      // start at a position where we can only move backward
-      if (xDiff > 0)
-        action = Action::BACKWARD;
-      if (xDiff < 0)
-        action = Action::FORWARD;
-      if (yDiff > 0)
-        action = Action::RIGHT;
-      if (yDiff < 0)
-        action = Action::LEFT;
-      if (zDiff > 0)
-        action = Action::UP;
-      if (zDiff < 0)
-        action = Action::DOWN;
-    }
-
-    if (cmd == "place-column") {
-      currBlockType = 1;
-      return Action::PLACE;
-    }
-
-    if (cmd == "place-beam") {
-      currBlockType = 2;
-      return Action::PLACE;
-    }
-
-    return action;
-  }
-
-  return Action::NONE;
+  getline(iFile, line);
+  GWEnv::Action action;
 
   return action;
 }
 
 void PDDL::createPDDLProblem(std::vector<std::vector<std::vector<int>>> grid,
-                             bool scaffold) {}
-void PDDL::createNumPDDLProblem(std::vector<std::vector<std::vector<int>>> grid,
-                                bool scaffold) {}
+                             bool scaffold) {
 
-std::string GridWorld::connected(std::string cmd, int i1, int j1, int k1,
-                                 int i2, int j2, int k2) {
+  int w, d, h;
+  w = d = h = grid.size();
+
+  oFile << "(define (problem 1 )\n";
+  oFile << "\t(:domain cubeworld)\n";
+
+  // Define the objects
+  oFile << "\t(:objects\n";
+
+  oFile << "\t\t";
+  for (int i = 0; i < w; i++) {
+    for (int j = 0; j < h; j++) {
+      for (int k = 0; k < d; k++)
+        oFile << "p" << i << "_" << j << "_" << k << " ";
+    }
+  }
+  oFile << "- position\n";
+  oFile << "\t)\n\n";
+
+  // Define the initial state
+  oFile << "\t(:init\n";
+
+  // Create the starting location for the agent
+  oFile << "\t\t(at-agent p0_0_0)\n";
+  for (int i = 0; i < w; i++) {
+    for (int j = 0; j < d; j++) {
+      for (int k = 0; k < h; k++) {
+        // Adjacent to left block
+        if (i > 0)
+          oFile << connected("adjacent", i, j, k, i - 1, j, k);
+
+        // Adjacent to right block
+        if (i < w - 1)
+          oFile << connected("adjacent", i, j, k, i + 1, j, k);
+
+        // Adjacent to backward block
+        if (j > 0)
+          oFile << connected("adjacent", i, j, k, i, j - 1, k);
+
+        // Adjacent to forward block
+        if (j < h - 1)
+          oFile << connected("adjacent", i, j, k, i, j + 1, k);
+
+        // Adjacent to downward block
+        if (k > 0)
+          oFile << connected("adjacent", i, j, k, i, j, k - 1);
+
+        // Adjacent to upward block
+        if (k < d - 1)
+          oFile << connected("adjacent", i, j, k, i, j, k + 1);
+      }
+    }
+  }
+
+  // Add what blocks are on the floor
+  for (int i = 0; i < w; i++) {
+    for (int j = 0; j < d; j++) {
+      oFile << "\t\t(on-floor ";
+      oFile << "p" << i << '_' << j << "_0)\n";
+    }
+  }
+
+  for (int i = 0; i < w; i++) {
+    for (int j = 0; j < h; j++) {
+      for (int k = 0; k < d; k++) {
+        if (grid[i][j][k]) {
+          oFile << "\t\t(full p" << i << "_" << k << "_" << j << ")\n";
+        } else {
+          oFile << "\t\t(not (full p" << i << "_" << k << "_" << j << "))\n";
+        }
+      }
+    }
+  }
+
+  oFile << "\t))\n";
+  oFile << ")\n";
+
+  oFile.close();
+}
+
+void PDDL::createNumPDDLProblem(std::vector<std::vector<std::vector<int>>> grid,
+                                bool scaffold) {
+
+  oFile.close();
+}
+
+std::string PDDL::connected(std::string cmd, int i1, int j1, int k1, int i2,
+                            int j2, int k2) {
   std::stringstream adj;
   adj << "\t\t";
   adj << '(' << cmd;

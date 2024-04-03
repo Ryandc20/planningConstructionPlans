@@ -82,14 +82,6 @@ private:
 
   void LoadFromFile();
 
-  void SaveToPDDL(std::string problemName) const;
-
-  void createPDDLProblem(std::string problemName) const;
-
-  void createPDDLDomain(std::string problemName) const;
-
-  Action stepPDDLPlan(std::ifstream &file);
-
   static std::string connected(std::string cmd, int i1, int j1, int k1, int i2,
                                int j2, int k2);
 
