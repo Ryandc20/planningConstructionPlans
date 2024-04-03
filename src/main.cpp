@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -38,15 +39,27 @@ int main(int argc, char *argv[]) {
   int size = stoi(argv[1]);
   string fileName = argv[2];
 
-  fs::path targetPaths = fs::current_path().parent_path() / "targets";
-  fs::path pddlPaths = fs::current_path().parent_path() / "pddl";
-  fs::path planPaths = fs::current_path().parent_path() / "plans";
+  fs::path targetPaths =
+      fs::current_path().parent_path() / "targets" / fileName;
+  fs::path pddlPaths = fs::current_path().parent_path() / "pddl" / fileName;
+  fs::path planPaths = fs::current_path().parent_path() / "plans" / fileName;
 
+  shared_ptr<PDDL> pddl = make_shared<PDDL>(pddlPaths, false);
+  GWEnv::GridWorld gridWorld(size, size, size, 2, targetPaths, false, pddl);
   if (cmd == "create") {
+    while (!WindowShouldClose()) {
+      gridWorld.Render();
+    }
+
   } else if (cmd == "render") {
     if (argc != 5)
       PrintError("render");
+
+    while (!WindowShouldClose()) {
+      gridWorld.RenderPlan();
+    }
   } else if (cmd == "search") {
+
     if (argc != 4)
       PrintError("search");
   } else if (cmd == "pddl") {

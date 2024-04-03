@@ -86,18 +86,6 @@ void PDDL::createPDDLProblem(std::vector<std::vector<std::vector<int>>> grid,
     }
   }
 
-  for (int i = 0; i < w; i++) {
-    for (int j = 0; j < h; j++) {
-      for (int k = 0; k < d; k++) {
-        if (grid[i][j][k]) {
-          oFile << "\t\t(full p" << i << "_" << k << "_" << j << ")\n";
-        } else {
-          oFile << "\t\t(not (full p" << i << "_" << k << "_" << j << "))\n";
-        }
-      }
-    }
-  }
-
   oFile << "\t))\n";
   oFile << ")\n";
 

@@ -1,10 +1,24 @@
 #ifndef PDDL_H
 #define PDDL_H
 
-#include "GridWorld.h"
 #include <fstream>
 #include <vector>
 
+namespace fs = std::filesystem;
+
+namespace GWEnv {
+enum class Action {
+  UP,
+  DOWN,
+  LEFT,
+  RIGHT,
+  FORWARD,
+  BACKWARD,
+  PLACE,
+  REMOVE,
+  NONE
+};
+}
 class PDDL {
 public:
   PDDL(fs::path filePath, bool save);
@@ -12,7 +26,8 @@ public:
   GWEnv::Action stepPlanNum();
   void createPDDLProblem(std::vector<std::vector<std::vector<int>>> grid,
                          bool scaffold);
-  void createNumPDDLProblem(bool scaffold = false);
+  void createNumPDDLProblem(std::vector<std::vector<std::vector<int>>> grid,
+                            bool scaffold);
 
 private:
   void loadPlanFile();

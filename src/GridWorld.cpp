@@ -1,4 +1,5 @@
 #include "GridWorld.h"
+#include "PDDL.h"
 #include "raylib.h"
 #include <fstream>
 #include <iostream>
@@ -69,7 +70,7 @@ void GridWorld::Render() {
   Draw(true);
 }
 
-void GridWorld::RenderPlan(std::ifstream &file) {
+void GridWorld::RenderPlan() {
   if (IsCursorHidden())
     UpdateCamera(&camera, CAMERA_FREE);
 
@@ -83,7 +84,7 @@ void GridWorld::RenderPlan(std::ifstream &file) {
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-  Action action = stepPDDLPlan(file);
+  Action action = pddl->stepPlan();
 
   switch (action) {
   case Action::NONE:

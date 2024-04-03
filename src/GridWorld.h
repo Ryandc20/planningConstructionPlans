@@ -2,6 +2,7 @@
 #define GRIDWORLDENV_GRIDWORLD_H
 
 #include "IAgentStep.h"
+#include "PDDL.h"
 #include "raylib.h"
 #include "rlgl.h"
 #include <filesystem>
@@ -12,19 +13,6 @@
 namespace fs = std::filesystem;
 
 namespace GWEnv {
-namespace {
-enum class Action {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
-  FORWARD,
-  BACKWARD,
-  PLACE,
-  REMOVE,
-  NONE
-};
-}
 
 // TODO: We're only using this struct once. Could use a tuple or something else
 // instead
@@ -37,7 +25,7 @@ class GridWorld {
 
 public:
   GridWorld(int _w, int _h, int _d, int _blockTypes, std::string path,
-            bool save)
+            bool save, std::shared_ptr<PDDL> _pddl)
       : w(_w), h(_h), d(_d), nBlockTypes(_blockTypes),
         filePath(std::move(path)), grid(w, vec<vec<int>>(h, vec<int>(d, 0))) {
     if (!save) {
@@ -50,12 +38,14 @@ public:
                  0.0f};  // Camera up vector (rotation towards target)
     camera.fovy = 45.0f; // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE; // Camera projection type
+
+    pddl = _pddl;
   }
 
   // Called every frame
   void Render();
 
-  void RenderPlan(std::ifstream &file);
+  void RenderPlan();
 
   GridWorld(const GridWorld &) = delete;
   GridWorld &operator=(const GridWorld &) = delete;
@@ -109,6 +99,8 @@ private:
   vec<vec<vec<int>>> grid;
   float spacing = 1.0f;
   std::string filePath;
+
+  std::shared_ptr<PDDL> pddl;
 };
 
 } // namespace GWEnv
