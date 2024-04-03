@@ -15,3 +15,4 @@ bin
 .ninja_log
 .cache
 .cmake
+planner

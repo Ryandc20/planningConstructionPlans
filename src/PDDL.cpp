@@ -1,5 +1,7 @@
 #include "PDDL.h"
+#include <filesystem>
 #include <fstream>
+#include <ios>
 #include <iostream>
 #include <sstream>
 
@@ -8,9 +10,11 @@ using namespace GWEnv;
 PDDL::PDDL(fs::path filePath, bool save) {
 
   if (save)
-    oFile.open(filePath.c_str());
+    oFile.open((filePath.c_str()));
+  else if (std::filesystem::exists(filePath))
+    iFile.open(filePath.c_str(), std::ios::out);
   else
-    iFile.open(filePath.c_str());
+    exit(1);
 }
 
 GWEnv::Action PDDL::stepPlan() {
