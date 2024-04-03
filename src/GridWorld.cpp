@@ -1,4 +1,5 @@
 #include "GridWorld.h"
+#include "raylib.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -84,34 +85,6 @@ void GridWorld::RenderPlan(std::ifstream &file) {
 
   Action action = stepPDDLPlan(file);
 
-  switch (action) {
-  case Action::UP:
-    std::cout << "Up" << std::endl;
-    break;
-  case Action::DOWN:
-    std::cout << "Down" << std::endl;
-    break;
-  case Action::LEFT:
-    std::cout << "Left" << std::endl;
-    break;
-  case Action::RIGHT:
-    std::cout << "Right" << std::endl;
-    break;
-  case Action::FORWARD:
-    std::cout << "Forward" << std::endl;
-    break;
-  case Action::BACKWARD:
-    std::cout << "Backward" << std::endl;
-    break;
-
-  case Action::PLACE:
-    std::cout << "Place" << std::endl;
-    break;
-
-  // Do nothing don't want to flood the screen
-  default:
-    break;
-  }
   switch (action) {
   case Action::NONE:
     break;
@@ -396,7 +369,10 @@ void GridWorld::SaveToPDDL(std::string problemName) const {
   createPDDLProblem(problemName);
 }
 
-void GridWorld::createPDDLDomain(std::string problemName) const {}
+void GridWorld::createPDDLDomain(std::string problemName) const {
+  // Open up the template
+  //
+}
 
 void GridWorld::createPDDLProblem(std::string problemName) const {
   std::ofstream file(filePath);
@@ -428,27 +404,27 @@ void GridWorld::createPDDLProblem(std::string problemName) const {
       for (int k = 0; k < h; k++) {
         // Adjacent to left block
         if (i > 0)
-          file << adjacent(i, j, k, i - 1, j, k);
+          file << connected("adjacent", i, j, k, i - 1, j, k);
 
         // Adjacent to right block
         if (i < w - 1)
-          file << adjacent(i, j, k, i + 1, j, k);
+          file << connected("adjacent", i, j, k, i + 1, j, k);
 
         // Adjacent to backward block
         if (j > 0)
-          file << adjacent(i, j, k, i, j - 1, k);
+          file << connected("adjacent", i, j, k, i, j - 1, k);
 
         // Adjacent to forward block
         if (j < h - 1)
-          file << adjacent(i, j, k, i, j + 1, k);
+          file << connected("adjacent", i, j, k, i, j + 1, k);
 
         // Adjacent to downward block
         if (k > 0)
-          file << below(i, j, k, i, j, k - 1);
+          file << connected("adjacent", i, j, k, i, j, k - 1);
 
         // Adjacent to upward block
         if (k < d - 1)
-          file << adjacent(i, j, k, i, j, k + 1);
+          file << connected("adjacent", i, j, k, i, j, k + 1);
       }
     }
   }
@@ -461,6 +437,15 @@ void GridWorld::createPDDLProblem(std::string problemName) const {
     }
   }
 
+  for (int i = 0; i < w; i++) {
+    for (int j = 0; j < d; j++) {
+      for (int k = 0; k < h; k++) {
+        if (k > 0) {
+        }
+      }
+    }
+  }
+  // Add the scafold needed
   file << "\t)\n\n";
 
   // Define the goal state
@@ -486,6 +471,8 @@ void GridWorld::createPDDLProblem(std::string problemName) const {
 
 // Performs the next action in the PDDL file plan
 Action GridWorld::stepPDDLPlan(std::ifstream &file) {
+  if (!IsKeyPressed(KEY_ENTER))
+    return Action::NONE;
 
   std::string line;
   if (std::getline(file, line)) {
@@ -562,21 +549,12 @@ Action GridWorld::stepPDDLPlan(std::ifstream &file) {
   return Action::NONE;
 }
 
-std::string GridWorld::adjacent(int i1, int j1, int k1, int i2, int j2,
-                                int k2) {
+std::string GridWorld::connected(std::string cmd, int i1, int j1, int k1,
+                                 int i2, int j2, int k2) {
   std::stringstream adj;
   adj << "\t\t";
-  adj << "(adjacent ";
-  adj << "p" << i1 << "_" << j1 << "_" << k1 << " ";
-  adj << "p" << i2 << "_" << j2 << "_" << k2 << ")\n";
-  return adj.str();
-}
-
-std::string GridWorld::below(int i1, int j1, int k1, int i2, int j2, int k2) {
-  std::stringstream adj;
-  adj << "\t\t";
-  adj << "(below ";
-  adj << "p" << i1 << "_" << j1 << "_" << k1 << " ";
+  adj << '(' << cmd;
+  adj << " p" << i1 << "_" << j1 << "_" << k1 << " ";
   adj << "p" << i2 << "_" << j2 << "_" << k2 << ")\n";
   return adj.str();
 }

@@ -90,9 +90,8 @@ private:
 
   Action stepPDDLPlan(std::ifstream &file);
 
-  static std::string adjacent(int i1, int j1, int k1, int i2, int j2, int k2);
-
-  static std::string below(int i1, int j1, int k1, int i2, int j2, int k2);
+  static std::string connected(std::string cmd, int i1, int j1, int k1, int i2,
+                               int j2, int k2);
 
   Action Step();
 
