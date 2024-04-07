@@ -2,7 +2,7 @@
 (define (problem ex)
   (:domain cubeworld)
 
-  (objects: p0_0_0, p_0_0_1 )
+  (objects: p0_0_0, p0_0_1 )
 
   (init: 
 

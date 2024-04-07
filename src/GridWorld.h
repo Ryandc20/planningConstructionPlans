@@ -1,7 +1,6 @@
 #ifndef GRIDWORLDENV_GRIDWORLD_H
 #define GRIDWORLDENV_GRIDWORLD_H
 
-#include "IAgentStep.h"
 #include "PDDL.h"
 #include "raylib.h"
 #include "rlgl.h"
