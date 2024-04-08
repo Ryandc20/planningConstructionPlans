@@ -1,60 +1,57 @@
 ; A numeric version of the domain
-
+; Numeric facts are defined by funcitons not predicates 
+; If I want multiple numeric facts of the same type I need to have a type associated 
+; to the function thus we can associate different objects to that type. Forall only depends on the type 
+; so we will need the objects broken up
 (define (domain cube-world)
   (:requirements :typing :fluents)
-  (:types agent position)
+  (:types nrow ncol row col scaffold)
+  ; Ok here is another issue how do I set certain locations to have scaffold or another block
+  ; Here is where I think I need to have these interact with predicates
+
 
   (:functions
-    (agent-x ?a - agent) 
-    (agent-y ?a - agent) 
-    (agent-z ?a - agent)
+    ; Indicate the agent location
+    (agent-x)
+    (agent-y)
+    (agent-z)
+
   )
 
-  (:predicates
-    (at ?a - agent ?x ?y - numeric) ; agent is at cell (x, y)
-  )
-
-  (:action move-up
+  (:action move-forward
     :parameters (?a - agent)
-    :precondition (and 
-      (at ?a ?x ?y) ; agent is at current position
-      (> ?y 0) ; agent is not at the top boundary
-    )
-    :effect (and 
-      (increase (agent-y ?a) -1) ; agent moves up
-    )
+    :preconditon () 
+    :effect (increment (x))
   )
   
-  (:action move-down
+  (:action move-backward
     :parameters (?a - agent)
-    :precondition (and 
-      (at ?a ?x ?y) ; agent is at current position
-      (< ?y 4) ; agent is not at the bottom boundary
-    )
-    :effect (and 
-      (increase (agent-y ?a) 1) ; agent moves down
-    )
+    :preconditon () 
+    :effect (decrement (x))
+  )
+
+  (:action move-right
+    :parameters (?a - agent)
+    :preconditon () 
+    :effect (increment (y))
   )
   
   (:action move-left
     :parameters (?a - agent)
-    :precondition (and 
-      (at ?a ?x ?y) ; agent is at current position
-      (> ?x 0) ; agent is not at the left boundary
-    )
-    :effect (and 
-      (increase (agent-x ?a) -1) ; agent moves left
-    )
+    :preconditon () 
+    :effect (decrement (y))
   )
   
-  (:action move-right
+
+  (:action move-up
     :parameters (?a - agent)
-    :precondition (and 
-      (at ?a ?x ?y) ; agent is at current position
-      (< ?x 4) ; agent is not at the right boundary
-    )
-    :effect (and 
-      (increase (agent-x ?a) 1) ; agent moves right
-    )
+    :preconditon () 
+    :effect (increment (z))
+  )
+  
+  (:action move-down
+    :parameters (?a - agent)
+    :preconditon () 
+    :effect (decrement (z)
   )
 )

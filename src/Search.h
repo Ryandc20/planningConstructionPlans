@@ -24,6 +24,7 @@ private:
 
   // Computes the heuristic
   long heuristic();
+
   long heuristicScaffold();
 
   // Computes the hash for a given state
