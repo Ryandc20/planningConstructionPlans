@@ -29,6 +29,7 @@
     :parameters (?pos - position)
     :precondition (and (at-agent ?pos) (not (column ?pos)) 
       (or (on-floor ?pos) (exists (?pos1 - position) (and (column ?pos1)(adjacent ?pos ?pos1))))
+      ; Check that  the required scaffold is placed if not on the floor 
       )
     :effect (column ?pos)
   )
@@ -38,6 +39,8 @@
     :parameters (?pos - position)
     :precondition (and (at-agent ?pos) (columns-complete) 
       (exists (?pos1 - position) (and (or (column ?pos1) (beam ?pos1)) (adjacent ?pos ?pos1)))
+      ; Check the required scaffold is place if not on the floor 
+
       )
     :effect (beam ?pos)
   )

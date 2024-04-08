@@ -19,6 +19,7 @@ enum class Action {
   NONE
 };
 }
+
 class PDDL {
 public:
   PDDL(fs::path filePath, bool save, bool _scaffold = false,
