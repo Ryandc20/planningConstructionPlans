@@ -56,8 +56,19 @@ int main(int argc, char *argv[]) {
   fs::path planPaths = fs::current_path().parent_path() / "plans" / fileName;
   fs::path domainPaths = fs::current_path().parent_path() / "pddlDomains";
 
-  shared_ptr<PDDL> pddl = make_shared<PDDL>(pddlPaths, true);
-  GWEnv::GridWorld gridWorld(size, size, size, 2, targetPaths, true, pddl);
+  bool numericalPlanning = false;
+  bool scaffolding = false;
+  for (int i = 3; i < argc; i++) {
+    if (string(argv[i]) == "-np")
+      numericalPlanning = true;
+    if (string(argv[i]) == "-s")
+      scaffolding = true;
+  }
+
+  shared_ptr<PDDL> pddl =
+      make_shared<PDDL>(pddlPaths, cmd != "render", scaffolding);
+  GWEnv::GridWorld gridWorld(size, size, size, 2, targetPaths, cmd != "render",
+                             pddl);
   if (cmd == "create") {
     InitWindow(screenWidth, screenHeight, "Grid World");
 
@@ -67,6 +78,8 @@ int main(int argc, char *argv[]) {
     }
 
   } else if (cmd == "render") {
+    InitWindow(screenWidth, screenHeight, "Grid World");
+
     if (argc != 5)
       PrintError("render");
 
@@ -83,14 +96,6 @@ int main(int argc, char *argv[]) {
     cmd << "../planner/fast-downward.py ";
 
     // Get the file path to the domain file
-    bool numericalPlanning = false;
-    bool scaffolding = false;
-    for (int i = 3; i < argc; i++) {
-      if (string(argv[i]) == "-np")
-        numericalPlanning = true;
-      if (string(argv[i]) == "-s")
-        scaffolding = true;
-    }
 
     if (numericalPlanning) {
       if (scaffolding)
@@ -108,6 +113,8 @@ int main(int argc, char *argv[]) {
 
     // Get the file path to the problem file
     cmd << pddlPaths << ' ';
+
+    cmd << "--search \"astar()\"";
 
     cout << "Running command: " << cmd.str();
     system(cmd.str().c_str());

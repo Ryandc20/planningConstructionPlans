@@ -55,12 +55,12 @@ bitset<BSSIZE> Search::getGoal() {
 
 ll Search::idastar() { search(); }
 
-ll Search::search() {}
+void Search::search() {}
 
 void Search::savePlan() {}
 
 // Generates the neighbor states
-void Search::neighbors(bitset<BSSIZE> &state) {}
+std::vector<std::bitset<BSSIZE>> Search::neighbors(bitset<BSSIZE> &state) {}
 
 void Search::loadGoal() {}
 

@@ -33,6 +33,7 @@ private:
   void loadPlanFile();
   inline std::string adjacent(int i1, int j1, int k1, int i2, int j2, int k2);
   inline std::string position(int i, int j, int k);
+  inline std::string scaffoldT(int i1, int j1, int k1, int i2, int j2, int k2);
 
   // Input file for rendering plans the pddl planner finds
   std::ifstream iFile;

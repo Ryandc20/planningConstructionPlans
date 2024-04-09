@@ -273,7 +273,7 @@ Action GridWorld::Step() {
   }
 
   if (IsKeyPressed(KEY_P)) {
-    pddl->createPDDLProblem(grid, false);
+    pddl->createProblem(grid);
   }
 
   // A little hack to avoid setting enterDelayed = true in every if statement

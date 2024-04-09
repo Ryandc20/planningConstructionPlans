@@ -31,11 +31,6 @@ GWEnv::Action PDDL::stepPlan() {
   std::string line;
   getline(iFile, line);
 
-  // Keep getting lines until one of them represents an action or we reach the
-  // end of the file
-  while (1) {
-  }
-
   return action;
 }
 
@@ -45,39 +40,39 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
     return;
   }
   oFile << "(define (problem 1)\n";
-  oFile << "(:domain cubeworld)\n\n";
+  oFile << "\t(:domain cubeworld)\n\n";
 
   // Define the objects
-  oFile << "(objects: ";
+  oFile << "\t(objects: ";
   for (size_t i = 0; i < grid.size(); i++) {
     for (size_t j = 0; j < grid[0].size(); j++) {
-      oFile << "\n\t";
+      oFile << "\n\t\t";
       for (size_t k = 0; k < grid[0][0].size(); k++) {
         oFile << position(i, j, k) << ' ';
       }
     }
   }
-  oFile << ")\n\n";
+  oFile << "\n\t)\n\n";
 
   // Define the initial state
-  oFile << "(init:\n";
+  oFile << "\t(init:\n";
 
   // Define what blocks are adjacent from one another
   for (size_t i = 0; i < grid.size(); i++) {
     for (size_t j = 0; j < grid[0].size(); j++) {
       for (size_t k = 0; k < grid[0][0].size(); k++) {
         if (i > 0)
-          adjacent(i, j, k, i - 1, j, k);
+          oFile << adjacent(i, j, k, i - 1, j, k);
         if (i < grid.size() - 1)
-          adjacent(i, j, k, i + 1, j, k);
+          oFile << adjacent(i, j, k, i + 1, j, k);
         if (j > 0)
-          adjacent(i, j, k, i, j - 1, k);
+          oFile << adjacent(i, j, k, i, j - 1, k);
         if (j < grid[0].size() - 1)
-          adjacent(i, j, k, i, j + 1, k);
+          oFile << adjacent(i, j, k, i, j + 1, k);
         if (k > 0)
-          adjacent(i, j, k, i, j, k - 1);
+          oFile << adjacent(i, j, k, i, j, k - 1);
         if (k < grid[0][0].size() - 1)
-          adjacent(i, j, k, i, j, k + 1);
+          oFile << adjacent(i, j, k, i, j, k + 1);
       }
     }
   }
@@ -88,12 +83,31 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
       for (size_t k = 0; k < grid[0][0].size(); k++) {
         // Needs a column
         if (grid[i][j][k] == 1) {
-          oFile << "(ncolumn " << position(i, j, k) << ")\n";
+          oFile << "\t\t(ncolumn " << position(i, j, k) << ")\n";
         }
 
         // Needs a beam
         if (grid[i][j][k] == 2) {
-          oFile << "(nbeam " << position(i, j, k) << ")\n";
+          oFile << "\t\t(nbeam " << position(i, j, k) << ")\n";
+        }
+
+        // Does that block need to have scaffold associated with it
+        if ((grid[i][j][k] == 1 or grid[i][j][k] == 2) and scaffold and i > 0) {
+          // Left scaffold
+          if (j > 0)
+            oFile << scaffoldT(i, j, k, i - 1, j - 1, k);
+
+          // Right scaffold
+          if (j < grid[0].size() - 1)
+            oFile << scaffoldT(i, j, k, i - 1, j + 1, k);
+
+          // Backward scaffold
+          if (k > 0)
+            oFile << scaffoldT(i, j, k, i - 1, j, k - 1);
+
+          // Forward scaffold
+          if (k < grid[0][0].size() - 1)
+            oFile << scaffoldT(i, j, k, i - 1, j, k + 1);
         }
       }
     }
@@ -101,19 +115,19 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
   oFile << ")\n";
 
   // Define the goal state
-  oFile << "(goal:\n";
-  oFile << "\t(and\n";
+  oFile << "\t(goal:\n";
+  oFile << "\t\t(and\n";
   // Make sure all the columns are completed
-  oFile << "\t\tcolumns-completed\n";
+  oFile << "\t\t\tcolumns-completed\n";
 
   // Make sure all the beams are completed
-  oFile << "\t\t(or (and (nbeam ?pos) (beam ?pos)) (and (not (nbeam ?pos)) "
+  oFile << "\t\t\t(or (and (nbeam ?pos) (beam ?pos)) (and (not (nbeam ?pos)) "
            "(not (beam ?pos))))\n";
 
   // Make sure the scaffold is all completed
   if (scaffold) {
-    oFile << "\t\t(forall (?pos - position)\n";
-    oFile << "\t\t\t(not (scaffold ?pos))\n";
+    oFile << "\t\t\t(forall (?pos - position)\n";
+    oFile << "\t\t\t\t(not (scaffold ?pos))\n";
   }
 
   oFile << "\t)\n";
@@ -122,16 +136,13 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
   oFile.close();
 }
 
-void PDDL::createNumProblem(std::vector<std::vector<std::vector<int>>> &grid) {
-
-  oFile.close();
-}
+void PDDL::createNumProblem(std::vector<std::vector<std::vector<int>>> &grid) {}
 
 inline std::string PDDL::adjacent(int i1, int j1, int k1, int i2, int j2,
                                   int k2) {
   std::stringstream adj;
   adj << "\t\t";
-  adj << '(' << "adjacent";
+  adj << '(' << "adjacent ";
   adj << position(i1, j1, k1) << ' ';
   adj << position(i2, j2, k2) << ")\n";
   return adj.str();
@@ -141,4 +152,14 @@ inline std::string PDDL::position(int i, int j, int k) {
   std::stringstream pos;
   pos << "p" << i << '_' << j << '_' << k;
   return pos.str();
+}
+
+inline std::string PDDL::scaffoldT(int i1, int j1, int k1, int i2, int j2,
+                                   int k2) {
+  std::stringstream cmd;
+  cmd << "\t\t";
+  cmd << '(' << "scaffold";
+  cmd << position(i1, j1, k1) << ' ';
+  cmd << position(i2, j2, k2) << ")\n";
+  return cmd.str();
 }
