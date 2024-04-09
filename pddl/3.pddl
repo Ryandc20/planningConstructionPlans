@@ -2,15 +2,16 @@
 	(:domain cubeworld)
 
 	(objects: 
-	p0_0_0 p0_0_1 p0_0_2 
-	p0_1_0 p0_1_1 p0_1_2 
-	p0_2_0 p0_2_1 p0_2_2 
-	p1_0_0 p1_0_1 p1_0_2 
-	p1_1_0 p1_1_1 p1_1_2 
-	p1_2_0 p1_2_1 p1_2_2 
-	p2_0_0 p2_0_1 p2_0_2 
-	p2_1_0 p2_1_1 p2_1_2 
-	p2_2_0 p2_2_1 p2_2_2 	)
+		p0_0_0 p0_0_1 p0_0_2 
+		p0_1_0 p0_1_1 p0_1_2 
+		p0_2_0 p0_2_1 p0_2_2 
+		p1_0_0 p1_0_1 p1_0_2 
+		p1_1_0 p1_1_1 p1_1_2 
+		p1_2_0 p1_2_1 p1_2_2 
+		p2_0_0 p2_0_1 p2_0_2 
+		p2_1_0 p2_1_1 p2_1_2 
+		p2_2_0 p2_2_1 p2_2_2 
+	)
 
 	(init:
 		(adjacent p0_0_0 p1_0_0)
@@ -137,10 +138,13 @@
 		(nbeam p2_2_0)
 		(nbeam p2_2_1)
 		(nbeam p2_2_2)
-  )
+)
 	(goal:
 		(and
 			columns-completed
-			(or (and (nbeam ?pos) (beam ?pos)) (and (not (nbeam ?pos)) (not (beam ?pos))))
+      (forall (?pos - position)
+			  (or (and (nbeam ?pos) (beam ?pos)) (and (not (nbeam ?pos)) (not (beam ?pos))))
+      )
+    )
 	)
 )

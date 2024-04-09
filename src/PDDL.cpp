@@ -43,7 +43,7 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
   oFile << "\t(:domain cubeworld)\n\n";
 
   // Define the objects
-  oFile << "\t(objects: ";
+  oFile << "\t(:objects ";
   for (size_t i = 0; i < grid.size(); i++) {
     for (size_t j = 0; j < grid[0].size(); j++) {
       oFile << "\n\t\t";
@@ -55,7 +55,7 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
   oFile << "\n\t)\n\n";
 
   // Define the initial state
-  oFile << "\t(init:\n";
+  oFile << "\t(:init\n";
 
   // Define what blocks are adjacent from one another
   for (size_t i = 0; i < grid.size(); i++) {
@@ -121,15 +121,20 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
   oFile << "\t\t\tcolumns-completed\n";
 
   // Make sure all the beams are completed
-  oFile << "\t\t\t(or (and (nbeam ?pos) (beam ?pos)) (and (not (nbeam ?pos)) "
+
+  oFile << "\t\t\t(forall (?pos - position)";
+  oFile << "\t\t\t\t(or (and (nbeam ?pos) (beam ?pos)) (and (not (nbeam ?pos)) "
            "(not (beam ?pos))))\n";
+  oFile << "\t\t\t)\n";
 
   // Make sure the scaffold is all completed
   if (scaffold) {
     oFile << "\t\t\t(forall (?pos - position)\n";
     oFile << "\t\t\t\t(not (scaffold ?pos))\n";
+    oFile << "\t\t\t)\n";
   }
 
+  oFile << "\t\t)\b";
   oFile << "\t)\n";
   oFile << ")\n";
 

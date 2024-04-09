@@ -66,9 +66,8 @@ int main(int argc, char *argv[]) {
   }
 
   shared_ptr<PDDL> pddl =
-      make_shared<PDDL>(pddlPaths, cmd != "render", scaffolding);
-  GWEnv::GridWorld gridWorld(size, size, size, 2, targetPaths, cmd != "render",
-                             pddl);
+      make_shared<PDDL>(pddlPaths, cmd == "create", scaffolding);
+  GWEnv::GridWorld gridWorld(size, size, size, 2, targetPaths, true, pddl);
   if (cmd == "create") {
     InitWindow(screenWidth, screenHeight, "Grid World");
 
@@ -99,14 +98,14 @@ int main(int argc, char *argv[]) {
 
     if (numericalPlanning) {
       if (scaffolding)
-        domainPaths = domainPaths / "domainnum";
+        domainPaths = domainPaths / "domainnums.pddl";
       else
-        domainPaths = domainPaths / "domainnumns";
+        domainPaths = domainPaths / "domainnum.pddl";
     } else {
       if (scaffolding)
-        domainPaths = domainPaths / "domain";
+        domainPaths = domainPaths / "domains.pddl";
       else
-        domainPaths = domainPaths / "domainns";
+        domainPaths = domainPaths / "domain.pddl";
     }
 
     cmd << domainPaths << ' ';
@@ -114,7 +113,7 @@ int main(int argc, char *argv[]) {
     // Get the file path to the problem file
     cmd << pddlPaths << ' ';
 
-    cmd << "--search \"astar()\"";
+    cmd << "--search \"astar(ipdb())\"";
 
     cout << "Running command: " << cmd.str();
     system(cmd.str().c_str());

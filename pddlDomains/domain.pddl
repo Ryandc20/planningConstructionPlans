@@ -5,14 +5,14 @@
   )
 
   (:predicates
-    ? Where the heck is are agent
+    ; Where the heck is are agent
     (at-agent ?pos - position) 
-    ? Is the location on the floor 
+    ; Is the location on the floor 
     (on-floor ?pos - position)
     ; Do we need a column here ? 
     (ncolumn ?pos - position)
     ; Do we need a beam here ? 
-    (nbeam ?pos -position)
+    (nbeam ?pos - position)
     ; A column is here.
     (column ?pos - position)
     ;A beam is here.
@@ -42,7 +42,7 @@
    
   (:action place-beam
     :parameters (?pos - position)
-    :precondition (and (at-agent ?pos) (columns-complete) 
+    :precondition (and (at-agent ?pos) (columns-completed) 
       ; Make sure this location actually needs a beam 
       (ncolumn ?pos)
       ; Make sure there exists a adjacent position that contains a block and is not floating
@@ -54,10 +54,10 @@
   ; Sets the columns to be complete to allow beams to be placed
   (:action columns-complete
     :parameters ()
-    :precondtion (forall (?pos - position) 
+    :precondition (forall (?pos - position) 
       (or (and (ncolumn ?pos) (column ?pos)) (and (not (ncolumn ?pos)) (not (column ?pos))))
       )
-    :effect(columns-completed)
+    :effect (columns-completed)
   )
 
 )
