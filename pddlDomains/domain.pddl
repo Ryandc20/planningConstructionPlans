@@ -20,17 +20,6 @@
     (adjacent ?pos1 ?pos2 - position) 
   )
 
-  (:functions
-    ; The current number of columns that exist
-    (num-col)
-    ; The total number of columns that need to be placed 
-    (total-col)
-    ; The current number of beams that exist
-    (num-beam)
-    ; The total number of beams that need to be placed
-    (total-beam)
-  )
-
   (:action move-agent
     :parameters (?from ?to - position)
     ; Make sure the agent is trying to move to an adjacent position and that the position is not empty
@@ -44,7 +33,7 @@
       ; Make sure the column is either on a floor or there exits a adjacent block so it is not floating
       (or (on-floor ?pos) (exists (?pos1 - position) (and (column ?pos1)(adjacent ?pos ?pos1))))
       )
-    :effect (and (column ?pos) (increase (num-col) 1))
+    :effect (column ?pos)
   )
 
   (:action place-beam
@@ -55,10 +44,7 @@
       (ncolumn ?pos)
       ; Make sure there exists a adjacent position that contains a block and is not floating
       (exists (?pos1 - position) (and (or (column ?pos1) (beam ?pos1)) (adjacent ?pos ?pos1)))
-
-      ; Make sure that all columns have been placed
-      (= (num-col) (total-col))
       )
-    :effect (and (beam ?pos) (increase (num-beam) 1))
+    :effect (beam ?pos) 
   )
 )

@@ -26,19 +26,6 @@
 
   )
 
-  (:functions
-    ; The current number of columns that exist
-    (num-col)
-    ; The total number of columns that need to be placed 
-    (total-col)
-    ; The current number of beams that exist
-    (num-beam)
-    ; The total number of beams that need to be placed
-    (total-beam)
-    ; The current number of scaffold that exists
-    (num-scaffold) 
-  )
-
   (:action move-agent
     :parameters (?from ?to - position)
     ; Make sure the agent is trying to move to an adjacent position and that the position is not empty
@@ -57,7 +44,7 @@
         (or (not (nscaffold ?pos1)) (and (nscaffold ?pos ?pos1) (or (scaffold ?pos1) (column ?pos1) (beam ?pos1))))
       )
       )
-    :effect (and (column ?pos) (increase (num-col) 1))
+    :effect (column ?pos)
   )
 
   (:action place-beam
@@ -69,15 +56,12 @@
       ; Make sure there exists a adjacent position that contains a block and is not floating
       (exists (?pos1 - position) (and (or (column ?pos1) (beam ?pos1)) (adjacent ?pos ?pos1)))
 
-      ; Make sure that all columns have been placed
-      (= (num-col) (total-col))
-
       ; Check that  the required scaffold is placed if not on the floor 
       (forall (?pos1 position) 
         (or (not (nscaffold ?pos1)) (and (nscaffold ?pos ?pos1) (or (scaffold ?pos1) (column ?pos1) (beam ?pos1))))
       )
       )
-    :effect (and (beam ?pos) (increase (num-beam) 1))
+    :effect (beam ?pos) 
   )
 
   (:action place-scaffold 
@@ -85,13 +69,13 @@
     :precondition (and (at-agent ?pos) (not (column ?pos)) 
       (or (on-floor ?pos) (exists (?pos1 - position) (and (scaffold ?pos1)(adjacent ?pos ?pos1))))
       )
-    :effect (and (scaffold ?pos) (increase (num-scaffold) 1)
+    :effect (scaffold ?pos)
   )
 
   (:action remove-scaffold
     :parameters (?pos - position)
     :precondition (and (at-agent ?pos)(scaffold ?pos))
-    :effect (not(scaffold ?pos) (decrease (num-scaffold) 1)
+    :effect (not(scaffold ?pos))
   )
 )
 
