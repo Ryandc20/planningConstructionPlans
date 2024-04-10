@@ -65,8 +65,13 @@ int main(int argc, char *argv[]) {
       scaffolding = true;
   }
 
-  shared_ptr<PDDL> pddl =
-      make_shared<PDDL>(pddlPaths, cmd == "create", scaffolding);
+  shared_ptr<PDDL> pddl;
+
+  if (cmd == "create") {
+    pddl = make_shared<PDDL>(pddlPaths, cmd == "create", scaffolding);
+  } else {
+    pddl = make_shared<PDDL>(planPaths, cmd == "create", scaffolding);
+  }
   GWEnv::GridWorld gridWorld(size, size, size, 2, targetPaths, true, pddl);
   if (cmd == "create") {
     InitWindow(screenWidth, screenHeight, "Grid World");
@@ -89,34 +94,43 @@ int main(int argc, char *argv[]) {
     if (argc != 4)
       PrintError("search");
   } else if (cmd == "pddl") {
-    // Call a classical planner
-    stringstream cmd;
-
-    cmd << "../planner/fast-downward.py ";
-
-    // Get the file path to the domain file
-
     if (numericalPlanning) {
-      if (scaffolding)
-        domainPaths = domainPaths / "domainnums.pddl";
-      else
-        domainPaths = domainPaths / "domainnum.pddl";
+
     } else {
-      if (scaffolding)
-        domainPaths = domainPaths / "domains.pddl";
-      else
-        domainPaths = domainPaths / "domain.pddl";
+      // Call a classical planner
+      stringstream cmd;
+
+      cmd << "../planner/fast-downward.py ";
+
+      // Get the file path to the domain file
+
+      if (numericalPlanning) {
+        if (scaffolding)
+          domainPaths = domainPaths / "domainnums.pddl";
+        else
+          domainPaths = domainPaths / "domainnum.pddl";
+      } else {
+        if (scaffolding)
+          domainPaths = domainPaths / "domains.pddl";
+        else
+          domainPaths = domainPaths / "domain.pddl";
+      }
+
+      cmd << domainPaths << ' ';
+
+      // Get the file path to the problem file
+      cmd << pddlPaths << ' ';
+
+      cmd << "--search \"astar(lmcut())\"";
+
+      cout << "Running command: " << cmd.str();
+      system(cmd.str().c_str());
+
+      stringstream mvCmd;
+
+      mvCmd << "mv sas_plan " << planPaths;
+      system(mvCmd.str().c_str());
     }
-
-    cmd << domainPaths << ' ';
-
-    // Get the file path to the problem file
-    cmd << pddlPaths << ' ';
-
-    cmd << "--search \"astar(lmcut())\"";
-
-    cout << "Running command: " << cmd.str();
-    system(cmd.str().c_str());
   } else {
     PrintError();
   }

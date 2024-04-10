@@ -29,78 +29,73 @@ GWEnv::Action PDDL::stepPlan() {
 
   // Get a line from the plan file
   std::string line;
-  getline(iFile, line);
 
-  // std::string line;
-  // if (std::getline(file, line)) {
-  //
-  //   if (line[0] == ';') {
-  //     std::cout << line.substr(1) << std::endl;
-  //     return Action::NONE;
-  //   }
-  //   Action action;
-  //   // Remove the parentheses
-  //   line = line.substr(1, line.size() - 1);
-  //
-  //   std::istringstream lineStream(line);
-  //
-  //   std::string cmd;
-  //
-  //   lineStream >> cmd;
-  //
-  //   if (cmd == "move-agent") {
-  //     std::string from, to;
-  //     lineStream >> from;
-  //     lineStream >> to;
-  //
-  //     int x1, x2, y1, y2, z1, z2;
-  //
-  //     // Remove the p which is in front of the block locations
-  //     from = from.substr(1);
-  //     to = to.substr(1);
-  //
-  //     // Warning some wacky code follows
-  //     for (char &ch : from)
-  //       if (ch == '_')
-  //         ch = ' ';
-  //     for (char &ch : to)
-  //       if (ch == '_')
-  //         ch = ' ';
-  //     std::istringstream fromStream(from);
-  //     std::istringstream toStream(to);
-  //     fromStream >> x1 >> y1 >> z1;
-  //     toStream >> x2 >> y2 >> z2;
-  //
-  //     // Figure out the direction in one position does the value differ
-  //     int xDiff = x2 - x1, yDiff = y2 - y1, zDiff = z2 - z1;
-  //
-  //     // The first two need to be reversed from forward to bacward because we
-  //     // start at a position where we can only move backward
-  //     if (xDiff > 0)
-  //       action = Action::BACKWARD;
-  //     if (xDiff < 0)
-  //       action = Action::FORWARD;
-  //     if (yDiff > 0)
-  //       action = Action::RIGHT;
-  //     if (yDiff < 0)
-  //       action = Action::LEFT;
-  //     if (zDiff > 0)
-  //       action = Action::UP;
-  //     if (zDiff < 0)
-  //       action = Action::DOWN;
-  //   }
-  //
-  //   if (cmd == "place-column") {
-  //     currBlockType = 1;
-  //     return Action::PLACE;
-  //   }
-  //
-  //   if (cmd == "place-beam") {
-  //     currBlockType = 2;
-  //     return Action::PLACE;
-  //   }
-  //
-  return Action::NONE;
+  if (std::getline(iFile, line)) {
+    std::cout << line << std::endl;
+
+    if (line[0] == ';') {
+      std::cout << line.substr(1) << std::endl;
+      return action;
+    }
+    // Remove the parentheses
+    line = line.substr(1, line.size() - 1);
+
+    std::istringstream lineStream(line);
+
+    std::string cmd;
+
+    lineStream >> cmd;
+
+    if (cmd == "move-agent") {
+      std::string from, to;
+      lineStream >> from;
+      lineStream >> to;
+
+      int x1, x2, y1, y2, z1, z2;
+
+      // Remove the p which is in front of the block locations
+      from = from.substr(1);
+      to = to.substr(1);
+
+      // Warning some wacky code follows
+      for (char &ch : from)
+        if (ch == '_')
+          ch = ' ';
+      for (char &ch : to)
+        if (ch == '_')
+          ch = ' ';
+      std::istringstream fromStream(from);
+      std::istringstream toStream(to);
+      fromStream >> x1 >> y1 >> z1;
+      toStream >> x2 >> y2 >> z2;
+
+      // Figure out the direction in one position does the value differ
+      int xDiff = x2 - x1, yDiff = y2 - y1, zDiff = z2 - z1;
+
+      // The first two need to be reversed from forward to bacward because we
+      // start at a position where we can only move backward
+      if (xDiff > 0)
+        action = Action::BACKWARD;
+      if (xDiff < 0)
+        action = Action::FORWARD;
+      if (yDiff > 0)
+        action = Action::RIGHT;
+      if (yDiff < 0)
+        action = Action::LEFT;
+      if (zDiff > 0) {
+        action = Action::UP;
+      }
+      if (zDiff < 0)
+        action = Action::DOWN;
+    }
+
+    if (cmd == "place-column")
+      action = Action::PLACE;
+
+    if (cmd == "place-beam")
+      action = Action::PLACE;
+  }
+  return action;
 }
 
 void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
@@ -140,10 +135,12 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
     }
   }
 
-  oFile << "\t\t(= (num-col " << numCols << "))\n";
-  oFile << "\t\t(= (num-beam " << numCols << "))\n";
-  if (scaffold)
-    oFile << "\t\t(= (num-scaffold) 0)\n";
+  if (numerical) {
+    oFile << "\t\t(= (num-col " << numCols << "))\n";
+    oFile << "\t\t(= (num-beam " << numCols << "))\n";
+    if (scaffold)
+      oFile << "\t\t(= (num-scaffold) 0)\n";
+  }
 
   oFile << "\t\t(at-agent p0_0_0)\n";
 
@@ -184,7 +181,7 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
 
         // Needs a beam
         if (grid[i][j][k] == 2) {
-          oFile << "\t\t(nbeam " << position(i, j, k) << ")\n";
+          oFile << "\t\t(nbeam " << position(i, k, j) << ")\n";
         }
 
         // Does that block need to have scaffold associated with it
@@ -214,10 +211,24 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
   oFile << "\t(:goal\n";
   oFile << "\t\t(and\n";
 
-  oFile << "\t\t\t (= (num-col) 0)\n";
-  oFile << "\t\t\t (= (num-beam) 0)\n";
-  if (scaffold)
-    oFile << "\t\t\t (= (num-scaffold) 0)\n";
+  if (numerical) {
+
+    oFile << "\t\t\t (= (num-col) 0)\n";
+    oFile << "\t\t\t (= (num-beam) 0)\n";
+    if (scaffold)
+      oFile << "\t\t\t (= (num-scaffold) 0)\n";
+  } else {
+    for (int i = 0; i < grid.size(); i++) {
+      for (int j = 0; j < grid[0].size(); j++) {
+        for (int k = 0; k < grid[0][0].size(); k++) {
+          if (grid[i][j][k] == 1)
+            oFile << "(column " << position(i, k, j) << " )\n";
+          if (grid[i][j][k] == 2)
+            oFile << "(beam " << position(i, k, j) << ")\n";
+        }
+      }
+    }
+  }
 
   oFile << "\t\t)\n";
   oFile << "\t)\n";

@@ -82,8 +82,6 @@ void GridWorld::RenderPlan() {
       DisableCursor();
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
   Action action = pddl->stepPlan();
 
   switch (action) {
@@ -101,7 +99,7 @@ void GridWorld::RenderPlan() {
   }
 
   // Draw the screen
-  Draw(false);
+  Draw(true);
 }
 
 void GridWorld::DrawPlanes() const {

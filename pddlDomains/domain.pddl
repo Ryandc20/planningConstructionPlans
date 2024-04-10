@@ -40,10 +40,15 @@
     :parameters (?pos - position)
     :precondition (and 
       (at-agent ?pos) 
+      (not (beam ?pos))
+      (not (column ?pos))
       ; Make sure this location actually needs a beam 
-      (ncolumn ?pos)
+      (nbeam ?pos)
       ; Make sure there exists a adjacent position that contains a block and is not floating
-      (exists (?pos1 - position) (and (or (column ?pos1) (beam ?pos1)) (adjacent ?pos ?pos1)))
+      (or 
+        (on-floor ?pos)
+        (exists (?pos1 - position) (and (or (column ?pos1) (beam ?pos1)) (adjacent ?pos ?pos1)))
+      )
       )
     :effect (beam ?pos) 
   )
