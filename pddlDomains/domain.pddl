@@ -1,8 +1,7 @@
 ; The cube world domain but with no need for scaffold
 (define (domain cubeworld)
-  (:types
-    position 
-  )
+  (:requirements :strips :typing :quantified-preconditions )
+  (:types position)
 
   (:predicates
     ; Where the heck is are agent
@@ -19,8 +18,17 @@
     (beam ?pos - position)
     ; These positions are adjacent  
     (adjacent ?pos1 ?pos2 - position) 
-    ; The columns have been completed and can start working on beams   
-    (columns-completed)
+  )
+
+  (:functions
+    ; The current number of columns that exist
+    (num-col)
+    ; The total number of columns that need to be placed 
+    (total-col)
+    ; The current number of beams that exist
+    (num-beam)
+    ; The total number of beams that need to be placed
+    (total-beam)
   )
 
   (:action move-agent
@@ -36,28 +44,21 @@
       ; Make sure the column is either on a floor or there exits a adjacent block so it is not floating
       (or (on-floor ?pos) (exists (?pos1 - position) (and (column ?pos1)(adjacent ?pos ?pos1))))
       )
-    :effect (column ?pos)
+    :effect (and (column ?pos) (increase (num-col) 1))
   )
 
-   
   (:action place-beam
     :parameters (?pos - position)
-    :precondition (and (at-agent ?pos) (columns-completed) 
+    :precondition (and 
+      (at-agent ?pos) 
       ; Make sure this location actually needs a beam 
       (ncolumn ?pos)
       ; Make sure there exists a adjacent position that contains a block and is not floating
       (exists (?pos1 - position) (and (or (column ?pos1) (beam ?pos1)) (adjacent ?pos ?pos1)))
-      )
-    :effect (beam ?pos)
-  )
 
-  ; Sets the columns to be complete to allow beams to be placed
-  (:action columns-complete
-    :parameters ()
-    :precondition (forall (?pos - position) 
-      (or (and (ncolumn ?pos) (column ?pos)) (and (not (ncolumn ?pos)) (not (column ?pos))))
+      ; Make sure that all columns have been placed
+      (= (num-col) (total-col))
       )
-    :effect (columns-completed)
+    :effect (and (beam ?pos) (increase (num-beam) 1))
   )
-
 )

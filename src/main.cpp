@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
     // Get the file path to the problem file
     cmd << pddlPaths << ' ';
 
-    cmd << "--search \"astar(ipdb())\"";
+    cmd << "--search \"astar(lmcut())\"";
 
     cout << "Running command: " << cmd.str();
     system(cmd.str().c_str());
