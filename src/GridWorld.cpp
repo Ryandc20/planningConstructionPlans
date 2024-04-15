@@ -55,7 +55,7 @@ void GridWorld::Render() {
   switch (action) {
   case Action::NONE:
     break;
-  case Action::PLACE:
+  case Action::PLACECOL:
     AddBlock(agentPos.x, agentPos.y, agentPos.z, currBlockType);
     break;
   case Action::REMOVE:
@@ -82,14 +82,17 @@ void GridWorld::RenderPlan() {
       DisableCursor();
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
   Action action = pddl->stepPlan();
 
   switch (action) {
   case Action::NONE:
     break;
-  case Action::PLACE:
+  case Action::PLACECOL:
+    currBlockType = 1;
+    AddBlock(agentPos.x, agentPos.y, agentPos.z, currBlockType);
+    break;
+  case Action::PLACEBEAM:
+    currBlockType = 2;
     AddBlock(agentPos.x, agentPos.y, agentPos.z, currBlockType);
     break;
   case Action::REMOVE:
@@ -101,7 +104,7 @@ void GridWorld::RenderPlan() {
   }
 
   // Draw the screen
-  Draw(false);
+  Draw(true);
 }
 
 void GridWorld::DrawPlanes() const {
@@ -273,7 +276,7 @@ Action GridWorld::Step() {
   }
 
   if (IsKeyPressed(KEY_P)) {
-    pddl->createPDDLProblem(grid, false);
+    pddl->createProblem(grid);
   }
 
   // A little hack to avoid setting enterDelayed = true in every if statement
@@ -298,7 +301,7 @@ Action GridWorld::Step() {
 
   if (IsKeyPressed(KEY_SPACE)) {
     enterDelayed = false;
-    return Action::PLACE;
+    return Action::PLACECOL;
   }
   if (IsKeyPressed(KEY_X)) {
     enterDelayed = false;

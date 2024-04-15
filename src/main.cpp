@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <iostream>
 #include <memory>
+#include <sstream>
 
 using namespace std;
 
@@ -25,6 +26,14 @@ void PrintError(string cmd = "") {
   } else if (cmd == "search") {
     cerr << "Usage ./GridWorld.h search <env_size> <file_name>" << endl;
   } else if (cmd == "pddl") {
+    cerr << "Usage ./GridWorld.h pddl <problem_file_name>" << endl;
+    cerr << "Possible flag extensions\n";
+    cerr << "\t --evaluator \"<specification>\" indicate what evaluator you "
+            "want to use\n";
+    cerr << "\t --search \"<specification>\" indicate what search algorithm "
+            "you want to use\n";
+    cerr << "-s include scaffolding\n";
+    cerr << "-num numerical planning\n";
 
   } else {
     cerr << "Usage: ./GridWorld.h <create|render|search> <env_size> <file_name>"
@@ -41,12 +50,27 @@ int main(int argc, char *argv[]) {
   int size = stoi(argv[2]);
   string fileName = argv[3];
 
-  fs::path targetPaths =
-      fs::current_path().parent_path() / "targets" / fileName;
+  fs::path targetPaths = fs::current_path().parent_path() / "targets" / "a";
   fs::path pddlPaths = fs::current_path().parent_path() / "pddl" / fileName;
   fs::path planPaths = fs::current_path().parent_path() / "plans" / fileName;
+  fs::path domainPaths = fs::current_path().parent_path() / "pddlDomains";
 
-  shared_ptr<PDDL> pddl = make_shared<PDDL>(pddlPaths, true);
+  bool numericalPlanning = false;
+  bool scaffolding = false;
+  // for (int i = 3; i < argc; i++) {
+  //   if (string(argv[i]) == "-np")
+  //     numericalPlanning = true;
+  //   if (string(argv[i]) == "-s")
+  //     scaffolding = true;
+  // }
+
+  shared_ptr<PDDL> pddl;
+
+  if (cmd == "create" or cmd == "pddl") {
+    pddl = make_shared<PDDL>(pddlPaths, cmd == "create", scaffolding);
+  } else {
+    pddl = make_shared<PDDL>(planPaths, false, scaffolding);
+  }
   GWEnv::GridWorld gridWorld(size, size, size, 2, targetPaths, true, pddl);
   if (cmd == "create") {
     InitWindow(screenWidth, screenHeight, "Grid World");
@@ -57,8 +81,7 @@ int main(int argc, char *argv[]) {
     }
 
   } else if (cmd == "render") {
-    if (argc != 5)
-      PrintError("render");
+    InitWindow(screenWidth, screenHeight, "Grid World");
 
     while (!WindowShouldClose()) {
       gridWorld.RenderPlan();
@@ -67,7 +90,43 @@ int main(int argc, char *argv[]) {
     if (argc != 4)
       PrintError("search");
   } else if (cmd == "pddl") {
-    // Call a classical planner
+    if (numericalPlanning) {
+
+    } else {
+      // Call a classical planner
+      stringstream cmd;
+
+      cmd << "../planner/fast-downward.py ";
+
+      // Get the file path to the domain file
+
+      if (numericalPlanning) {
+        if (scaffolding)
+          domainPaths = domainPaths / "domainnums.pddl";
+        else
+          domainPaths = domainPaths / "domainnum.pddl";
+      } else {
+        if (scaffolding)
+          domainPaths = domainPaths / "domains.pddl";
+        else
+          domainPaths = domainPaths / "domain.pddl";
+      }
+
+      cmd << domainPaths << ' ';
+
+      // Get the file path to the problem file
+      cmd << pddlPaths << ' ';
+
+      cmd << "--search \"astar(lmcut())\"";
+
+      cout << "Running command: " << cmd.str();
+      system(cmd.str().c_str());
+
+      stringstream mvCmd;
+
+      mvCmd << "mv sas_plan " << planPaths;
+      system(mvCmd.str().c_str());
+    }
   } else {
     PrintError();
   }
