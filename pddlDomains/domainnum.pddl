@@ -1,6 +1,6 @@
 ; The cube world domain but with no need for scaffold
 (define (domain cubeworld)
-  (:requirements :strips :typing :quantified-preconditions )
+  (:requirements :strips :typing :quantified-preconditions :fluents )
   (:types position)
 
   (:predicates
@@ -44,7 +44,7 @@
       ; Make sure the column is either on a floor or there exits a adjacent block so it is not floating
       (or (on-floor ?pos) (exists (?pos1 - position) (and (column ?pos1)(adjacent ?pos ?pos1))))
       )
-    :effect (and (column ?pos) (increase (num-col) 1))
+    :effect (and (column ?pos) (decrease (num-col) 1))
   )
 
   (:action place-beam
@@ -59,6 +59,6 @@
       ; Make sure that all columns have been placed
       (= (num-col) (total-col))
       )
-    :effect (and (beam ?pos) (increase (num-beam) 1))
+    :effect (and (beam ?pos) (decrease (num-beam) 1))
   )
 )

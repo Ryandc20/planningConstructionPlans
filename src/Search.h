@@ -12,10 +12,10 @@
 
 class Search {
 public:
-  Search(bool render = false, bool scaffold = false);
+  Search(bool scaffold, std::vector<std::vector<std::vector<int>>> goal);
+  Search(bool scaffold, fs::path planFile);
   long long astar();
   long long idastar();
-  long long searchScaffold();
 
   GWEnv::Action stepPlan();
 
@@ -48,9 +48,9 @@ private:
 
   std::bitset<BSSIZE> getGoal();
 
-  std::unordered_map<std::bitset<BSSIZE>, int> closed;
+  std::unordered_map<std::bitset<BSSIZE>, long long> closed;
 
-  std::priority_queue<std::pair<int, std::bitset<BSSIZE>>> open;
+  std::priority_queue<std::pair<long long, std::bitset<BSSIZE>>> open;
 
   // Stores the representation of the goal state
   std::vector<std::vector<std::vector<int>>> blueprint;
@@ -59,5 +59,7 @@ private:
 
   // Stores the found plan
   std::vector<GWEnv::Action> plan;
+
+  bool scaffold;
 };
 #endif

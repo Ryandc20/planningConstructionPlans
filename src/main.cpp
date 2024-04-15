@@ -57,20 +57,18 @@ int main(int argc, char *argv[]) {
 
   bool numericalPlanning = false;
   bool scaffolding = false;
-  // for (int i = 3; i < argc; i++) {
-  //   if (string(argv[i]) == "-np")
-  //     numericalPlanning = true;
-  //   if (string(argv[i]) == "-s")
-  //     scaffolding = true;
-  // }
+  for (int i = 0; i < argc; i++) {
+    if (string(argv[i]) == "--num")
+      numericalPlanning = true;
+    if (string(argv[i]) == "-s")
+      scaffolding = true;
+  }
+  cout << numericalPlanning << endl;
 
   shared_ptr<PDDL> pddl;
 
-  if (cmd == "create" or cmd == "pddl") {
-    pddl = make_shared<PDDL>(pddlPaths, cmd == "create", scaffolding);
-  } else {
-    pddl = make_shared<PDDL>(planPaths, false, scaffolding);
-  }
+  pddl = make_shared<PDDL>(pddlPaths, true, scaffolding, numericalPlanning);
+
   GWEnv::GridWorld gridWorld(size, size, size, 2, targetPaths, true, pddl);
   if (cmd == "create") {
     InitWindow(screenWidth, screenHeight, "Grid World");
@@ -89,6 +87,8 @@ int main(int argc, char *argv[]) {
   } else if (cmd == "search") {
     if (argc != 4)
       PrintError("search");
+
+    // cmake .
   } else if (cmd == "pddl") {
     if (numericalPlanning) {
 
