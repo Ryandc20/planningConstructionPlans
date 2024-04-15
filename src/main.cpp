@@ -50,27 +50,26 @@ int main(int argc, char *argv[]) {
   int size = stoi(argv[2]);
   string fileName = argv[3];
 
-  fs::path targetPaths =
-      fs::current_path().parent_path() / "targets" / fileName;
+  fs::path targetPaths = fs::current_path().parent_path() / "targets" / "a";
   fs::path pddlPaths = fs::current_path().parent_path() / "pddl" / fileName;
   fs::path planPaths = fs::current_path().parent_path() / "plans" / fileName;
   fs::path domainPaths = fs::current_path().parent_path() / "pddlDomains";
 
   bool numericalPlanning = false;
   bool scaffolding = false;
-  for (int i = 3; i < argc; i++) {
-    if (string(argv[i]) == "-np")
-      numericalPlanning = true;
-    if (string(argv[i]) == "-s")
-      scaffolding = true;
-  }
+  // for (int i = 3; i < argc; i++) {
+  //   if (string(argv[i]) == "-np")
+  //     numericalPlanning = true;
+  //   if (string(argv[i]) == "-s")
+  //     scaffolding = true;
+  // }
 
   shared_ptr<PDDL> pddl;
 
-  if (cmd == "create") {
+  if (cmd == "create" or cmd == "pddl") {
     pddl = make_shared<PDDL>(pddlPaths, cmd == "create", scaffolding);
   } else {
-    pddl = make_shared<PDDL>(planPaths, cmd == "create", scaffolding);
+    pddl = make_shared<PDDL>(planPaths, false, scaffolding);
   }
   GWEnv::GridWorld gridWorld(size, size, size, 2, targetPaths, true, pddl);
   if (cmd == "create") {
@@ -83,9 +82,6 @@ int main(int argc, char *argv[]) {
 
   } else if (cmd == "render") {
     InitWindow(screenWidth, screenHeight, "Grid World");
-
-    if (argc != 5)
-      PrintError("render");
 
     while (!WindowShouldClose()) {
       gridWorld.RenderPlan();

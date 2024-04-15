@@ -90,10 +90,10 @@ GWEnv::Action PDDL::stepPlan() {
     }
 
     if (cmd == "place-column")
-      action = Action::PLACE;
+      action = Action::PLACECOL;
 
     if (cmd == "place-beam")
-      action = Action::PLACE;
+      action = Action::PLACEBEAM;
   }
   return action;
 }

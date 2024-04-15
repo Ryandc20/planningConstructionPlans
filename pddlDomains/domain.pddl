@@ -30,6 +30,7 @@
   (:action place-column
     :parameters (?pos - position)
     :precondition (and (at-agent ?pos) (not (column ?pos)) 
+      (ncolumn ?pos)
       ; Make sure the column is either on a floor or there exits a adjacent block so it is not floating
       (or (on-floor ?pos) (exists (?pos1 - position) (and (column ?pos1)(adjacent ?pos ?pos1))))
       )

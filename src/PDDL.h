@@ -14,7 +14,8 @@ enum class Action {
   RIGHT,
   FORWARD,
   BACKWARD,
-  PLACE,
+  PLACECOL,
+  PLACEBEAM,
   REMOVE,
   NONE
 };

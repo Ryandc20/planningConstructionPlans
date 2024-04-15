@@ -55,7 +55,7 @@ void GridWorld::Render() {
   switch (action) {
   case Action::NONE:
     break;
-  case Action::PLACE:
+  case Action::PLACECOL:
     AddBlock(agentPos.x, agentPos.y, agentPos.z, currBlockType);
     break;
   case Action::REMOVE:
@@ -87,7 +87,12 @@ void GridWorld::RenderPlan() {
   switch (action) {
   case Action::NONE:
     break;
-  case Action::PLACE:
+  case Action::PLACECOL:
+    currBlockType = 1;
+    AddBlock(agentPos.x, agentPos.y, agentPos.z, currBlockType);
+    break;
+  case Action::PLACEBEAM:
+    currBlockType = 2;
     AddBlock(agentPos.x, agentPos.y, agentPos.z, currBlockType);
     break;
   case Action::REMOVE:
@@ -296,7 +301,7 @@ Action GridWorld::Step() {
 
   if (IsKeyPressed(KEY_SPACE)) {
     enterDelayed = false;
-    return Action::PLACE;
+    return Action::PLACECOL;
   }
   if (IsKeyPressed(KEY_X)) {
     enterDelayed = false;
