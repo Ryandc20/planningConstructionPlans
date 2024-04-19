@@ -10,6 +10,23 @@
 #define ENVSIZE 5
 #define BSSIZE ENVSIZE *ENVSIZE *ENVSIZE
 
+// Represents a single state in the environemnt
+typedef std::pair<uint16_t, std::bitset<BSSIZE>> State;
+
+using namespace GWEnv;
+
+// Represents a search Node only for use in close list
+// open list just needs to store the total cost and the State representation to
+// hash
+struct Node {
+  // g: the cost to current node
+  // f: total cost f = g + h (heuristic value)
+  uint32_t f, g;
+  State state;
+  Action action;
+  Node *parent = nullptr;
+};
+
 class Search {
 public:
   Search(bool scaffold, std::vector<std::vector<std::vector<int>>> goal);
@@ -24,7 +41,7 @@ private:
   // A*
   void search();
   void savePlan();
-  std::vector<std::bitset<BSSIZE>> neighbors(std::bitset<BSSIZE> &state);
+  std::vector<std::pair<State, Action>> neighbours(State &state);
   void neighborsScaffold();
   // Loads a goal the 3d vector containing the representation of the building to
   // build
@@ -33,12 +50,10 @@ private:
   void loadPlan();
 
   // Computes the heuristic
-  long heuristic();
+  uint32_t heuristic(State &state);
 
+  // Computes the heuristic probably going to be the same as scaffold
   long heuristicScaffold();
-
-  // Computes the hash for a given state
-  long hashState();
 
   // Steps through the plan to allow you to render it
   void step();
@@ -46,20 +61,30 @@ private:
   // Construct a solution plan based on the closed list
   void constructPlan();
 
+  // Returns the location and cost of the closest node
+  std::pair<uint32_t, uint32_t> bitSetBFS(State state);
+
   std::bitset<BSSIZE> getGoal();
 
-  std::unordered_map<std::bitset<BSSIZE>, long long> closed;
+  // Closed list information
+  std::unordered_map<State, Node> closed;
 
-  std::priority_queue<std::pair<long long, std::bitset<BSSIZE>>> open;
+  // Open list information
+  std::priority_queue<std::pair<uint32_t, State>> open;
 
   // Stores the representation of the goal state
   std::vector<std::vector<std::vector<int>>> blueprint;
 
-  std::vector<std::vector<std::vector<int>>> state;
-
   // Stores the found plan
   std::vector<GWEnv::Action> plan;
 
+  std::vector<std::vector<std::vector<int>>> goal;
+
+  // Don't care where the agent is for the goal
+  std::bitset<BSSIZE> goalBit;
+
   bool scaffold;
+
+  bool beamTime = false;
 };
 #endif

@@ -47,7 +47,10 @@ public:
   void RenderPlan();
 
   GridWorld(const GridWorld &) = delete;
+
   GridWorld &operator=(const GridWorld &) = delete;
+
+  vec<vec<vec<int>>> grid;
 
 private:
   void Draw(bool instructions) const;
@@ -95,7 +98,6 @@ private:
   };
 
   int currBlockType = 1;
-  vec<vec<vec<int>>> grid;
   float spacing = 1.0f;
   std::string filePath;
 

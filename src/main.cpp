@@ -87,6 +87,16 @@ int main(int argc, char *argv[]) {
   } else if (cmd == "search") {
     if (argc != 4)
       PrintError("search");
+    // First load in the target
+    vector<vector<vector<int>>> target = gridWorld.grid;
+
+    Search search(scaffolding, target);
+
+    // Try out A*
+    search.astar();
+
+    // Try out IDA*
+    // search.idastar();
 
     // cmake .
   } else if (cmd == "pddl") {

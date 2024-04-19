@@ -14,8 +14,8 @@
 	)
 
 	(:init
-		(= (num-col 4))
-		(= (num-beam 4))
+		(= (num-col) 4)
+		(= (num-beam) 4)
 		(at-agent p0_0_0)
 		(on-floor p0_0_0)
 		(on-floor p0_1_0)
@@ -138,7 +138,8 @@
 		(ncolumn p0_2_0)
 		(ncolumn p2_0_0)
 		(ncolumn p2_2_0)
-)
+  )
+
 	(:goal
 		(and
 			 (= (num-col) 0)
