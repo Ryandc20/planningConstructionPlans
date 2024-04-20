@@ -50,8 +50,6 @@ public:
 
   GridWorld &operator=(const GridWorld &) = delete;
 
-  vec<vec<vec<int>>> grid;
-
 private:
   void Draw(bool instructions) const;
   // Draw placed blocks and current agent position
@@ -102,6 +100,7 @@ private:
   std::string filePath;
 
   std::shared_ptr<PDDL> pddl;
+  vec<vec<vec<int>>> grid;
 };
 
 } // namespace GWEnv
