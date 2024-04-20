@@ -47,6 +47,7 @@ public:
   void RenderPlan();
 
   GridWorld(const GridWorld &) = delete;
+
   GridWorld &operator=(const GridWorld &) = delete;
 
 private:
@@ -95,11 +96,11 @@ private:
   };
 
   int currBlockType = 1;
-  vec<vec<vec<int>>> grid;
   float spacing = 1.0f;
   std::string filePath;
 
   std::shared_ptr<PDDL> pddl;
+  vec<vec<vec<int>>> grid;
 };
 
 } // namespace GWEnv

@@ -276,6 +276,7 @@ Action GridWorld::Step() {
   }
 
   if (IsKeyPressed(KEY_P)) {
+    std::cout << "Trying to create a problem" << std::endl;
     pddl->createProblem(grid);
   }
 

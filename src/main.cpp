@@ -50,27 +50,31 @@ int main(int argc, char *argv[]) {
   int size = stoi(argv[2]);
   string fileName = argv[3];
 
-  fs::path targetPaths = fs::current_path().parent_path() / "targets" / "a";
+  fs::path targetPaths = fs::current_path().parent_path() / "targets";
   fs::path pddlPaths = fs::current_path().parent_path() / "pddl" / fileName;
   fs::path planPaths = fs::current_path().parent_path() / "plans" / fileName;
   fs::path domainPaths = fs::current_path().parent_path() / "pddlDomains";
 
   bool numericalPlanning = false;
   bool scaffolding = false;
-  // for (int i = 3; i < argc; i++) {
-  //   if (string(argv[i]) == "-np")
-  //     numericalPlanning = true;
-  //   if (string(argv[i]) == "-s")
-  //     scaffolding = true;
-  // }
+  for (int i = 0; i < argc; i++) {
+    if (string(argv[i]) == "--num")
+      numericalPlanning = true;
+    if (string(argv[i]) == "-s")
+      scaffolding = true;
+  }
+  cout << numericalPlanning << endl;
 
   shared_ptr<PDDL> pddl;
 
-  if (cmd == "create" or cmd == "pddl") {
-    pddl = make_shared<PDDL>(pddlPaths, cmd == "create", scaffolding);
+  if (cmd == "render") {
+    pddl = make_shared<PDDL>(planPaths, cmd == "create", scaffolding,
+                             numericalPlanning);
   } else {
-    pddl = make_shared<PDDL>(planPaths, false, scaffolding);
+    pddl = make_shared<PDDL>(pddlPaths, cmd == "create", scaffolding,
+                             numericalPlanning);
   }
+
   GWEnv::GridWorld gridWorld(size, size, size, 2, targetPaths, true, pddl);
   if (cmd == "create") {
     InitWindow(screenWidth, screenHeight, "Grid World");
@@ -89,6 +93,17 @@ int main(int argc, char *argv[]) {
   } else if (cmd == "search") {
     if (argc != 4)
       PrintError("search");
+    // First load in the target
+    // vector<vector<vector<int>>> target = gridWorld.grid;
+    // Search search(scaffolding, target);
+
+    // Try out A*
+    // search.astar();
+
+    // Try out IDA*
+    // search.idastar();
+
+    // cmake .
   } else if (cmd == "pddl") {
     if (numericalPlanning) {
 
@@ -117,7 +132,7 @@ int main(int argc, char *argv[]) {
       // Get the file path to the problem file
       cmd << pddlPaths << ' ';
 
-      cmd << "--search \"astar(lmcut())\"";
+      cmd << " --search \"astar(ipdb())\"";
 
       cout << "Running command: " << cmd.str();
       system(cmd.str().c_str());

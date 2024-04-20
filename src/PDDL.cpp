@@ -10,7 +10,7 @@ using namespace GWEnv;
 
 PDDL::PDDL(fs::path filePath, bool save, bool _scaffold, bool _numerical) {
   numerical = _numerical;
-  _scaffold = _scaffold;
+  scaffold = _scaffold;
   if (save)
     oFile.open((filePath.c_str()));
   else if (std::filesystem::exists(filePath))
@@ -99,10 +99,7 @@ GWEnv::Action PDDL::stepPlan() {
 }
 
 void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
-  if (numerical) {
-    createNumProblem(grid);
-    return;
-  }
+  std::cout << "Creating file\n";
   oFile << "(define (problem 1)\n";
   oFile << "\t(:domain cubeworld)\n\n";
 
@@ -205,7 +202,7 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
       }
     }
   }
-  oFile << ")\n";
+  oFile << "\t)\n";
 
   // Define the goal state
   oFile << "\t(:goal\n";
@@ -222,9 +219,9 @@ void PDDL::createProblem(std::vector<std::vector<std::vector<int>>> &grid) {
       for (int j = 0; j < grid[0].size(); j++) {
         for (int k = 0; k < grid[0][0].size(); k++) {
           if (grid[i][j][k] == 1)
-            oFile << "(column " << position(i, k, j) << " )\n";
+            oFile << "\t\t\t(column " << position(i, k, j) << " )\n";
           if (grid[i][j][k] == 2)
-            oFile << "(beam " << position(i, k, j) << ")\n";
+            oFile << "\t\t\t(beam " << position(i, k, j) << ")\n";
         }
       }
     }
